@@ -1,0 +1,21 @@
+---
+# tasks file for httpd
+- name: install httpd package
+  package: name={{item}} state=present
+  with_items:
+    - httpd
+    - git
+
+- name: start service
+  service: name=httpd state=started
+
+- name: download code from github
+  git: repo={{git_repo}} dest=/var/www/html
+
+- name: changing port to httpd
+  template: src=/root/roles/httpd/templates/httpd.conf.j2 dest=/etc/httpd/conf/httpd.conf
+  notify: restart httpd
+
+- name: enable firewall service
+  firewalld: port=8080/tcp permanent=yes state=enabled
+  notify: reload firewalld   
